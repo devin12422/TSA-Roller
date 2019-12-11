@@ -58,7 +58,7 @@ function createScene() {
     sceneWidth = window.innerWidth;
     sceneHeight = window.innerHeight;
     scene = new THREE.Scene(); //the 3d scene
-    scene.fog = new THREE.FogExp2(0xf0fff0, 0.14);
+    scene.fog = new THREE.FogExp2(0xf0fff0, 0.1);
     camera = new THREE.PerspectiveCamera(60, sceneWidth / sceneHeight, 0.1, 1000); //perspective camera
     renderer = new THREE.WebGLRenderer({
         alpha: true
@@ -167,7 +167,8 @@ function handleKeyDown(keyEvent) {
 function addHero() {
     var sphereGeometry = new THREE.DodecahedronGeometry(heroRadius, 1);
     var sphereMaterial = new THREE.MeshStandardMaterial({
-        color: 0xe5f2f2,
+        color: 0x969FB2,
+        //color: 0xe5f2f2,
         shading: THREE.FlatShading
     })
     jumping = false;
@@ -187,7 +188,8 @@ function addWorld() {
     var tiers = 40;
     var sphereGeometry = new THREE.SphereGeometry(worldRadius, sides, tiers);
     var sphereMaterial = new THREE.MeshStandardMaterial({
-        color: 0xfffafa,
+        //color: 0xfffafa
+        color: 0x7cfc00,
         shading: THREE.FlatShading
     })
     var vertexIndex;
@@ -247,7 +249,7 @@ function addLight() {
 function addPathTree() {
     var options = [0, 1, 2];
     var lane = Math.floor(Math.random() * 30) / 10;
-    console.log(lane);
+    //     console.log(lane);
     addTree(true, lane);
     options.splice(lane, 1);
     if(Math.random() > 0.5) {
@@ -267,6 +269,7 @@ function addWorldTrees() {
 
 function addTree(inPath, row, isLeft) {
     var newTree;
+    console.log(inPath);
     if(inPath) {
         if(treesPool.length == 0) return;
         newTree = treesPool.pop();
@@ -381,15 +384,16 @@ function tightenTree(vertices, sides, currentTier) {
 function update() {
     //stats.update();
     //     animate
-    heroSphere.scale.x += 0.001;
-    heroSphere.scale.z += 0.001;
-    heroSphere.scale.y += 0.001;
+    heroSphere.scale.x += 0.0025;
+    heroSphere.scale.z += 0.0025;
+    heroSphere.scale.y += 0.0025;
     rollingGroundSphere.rotation.x += rollingSpeed;
     heroSphere.rotation.x -= heroRollingSpeed;
     if(heroSphere.position.y <= heroBaseY) {
         jumping = false;
         bounceValue = (Math.random() * 0.04) + 0.005;
     }
+    //     heroSphere.position.y = 1+ heroSphere.scale.y;
     heroSphere.position.y += bounceValue;
     heroSphere.position.x = THREE.Math.lerp(heroSphere.position.x, currentLane, 2 * clock.getDelta()); //clock.getElapsedTime());
     bounceValue -= gravity;
@@ -417,7 +421,7 @@ function doTreeLogic() {
         if(treePos.z > 6 && oneTree.visible) { //gone out of our view zone
             treesToRemove.push(oneTree);
         } else { //check collision
-            if(treePos.distanceTo(heroSphere.position) <= 0.5) {
+            if(treePos.distanceTo(heroSphere.position) <= heroSphere.scale.x / 2) {
                 console.log("hit");
                 heroSphere.scale.x = heroSphere.scale.x / 1.25;
                 heroSphere.scale.z = heroSphere.scale.z / 1.25;
@@ -435,7 +439,6 @@ function doTreeLogic() {
         treesInPath.splice(fromWhere, 1);
         treesPool.push(oneTree);
         oneTree.visible = false;
-        console.log(heroRadius + " radius");
         console.log("remove tree");
     });
 }
